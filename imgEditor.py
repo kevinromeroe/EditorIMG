@@ -1,48 +1,38 @@
 import streamlit as st
 from PIL import Image, ImageFilter
-import cv2
-import numpy as np
 
 st.markdown("<h1 style='text-align: center;'>Editor de imagen</h1>", unsafe_allow_html=True)
 st.markdown("---")
-img_file = st.file_uploader("Carga tu imagen a editar", type=["jpg", "jpeg", "png", "gif", "tiff", "bmp", "webp"])
+img = st.file_uploader("Carga tu imagen a editar", type=["jpg", "jpeg", "png", "gif", "tiff", "bmp", "webp"])
+size = st.empty()
+mode = st.empty()
+format_ = st.empty()
+info = st.empty()
 
-if img_file:
-    img = Image.open(img_file)
-    st.image(img, caption='Imagen Original')
-
-    st.markdown("<h2 style='text-align: center;'>Redimensionar Imagen</h2>", unsafe_allow_html=True)
-    width = st.number_input("Ingrese el ancho", min_value=1, value=img.width, key="width")
-    height = st.number_input("Ingrese el alto", min_value=1, value=img.height, key="height")
-
+if img:
+    info.markdown("<h2 style='text-align: center;'>Información de la imagen</h2>", unsafe_allow_html=True)
+    opened_img = Image.open(img)  # No uses 'with' aquí porque necesitas usar opened_img fuera del bloque if img
+    # Ahora puedes acceder a las propiedades de la imagen abierta
+    size.markdown(f"<h6>Size: {opened_img.size}</h6>", unsafe_allow_html=True)
+    mode.markdown(f"<h6>Mode: {opened_img.mode}</h6>", unsafe_allow_html=True)
+    format_.markdown(f"<h6>Format: {opened_img.format}</h6>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;'>Redimensionar</h2>", unsafe_allow_html=True)
+    width = st.number_input("Ingrese el ancho", value=opened_img.width)
+    height = st.number_input("Ingrese el Largo", value=opened_img.height)
     st.markdown("<h2 style='text-align: center;'>Rotación</h2>", unsafe_allow_html=True)
-    degree = st.number_input("Ingrese el ángulo de rotación", key="rotation")
-
+    degree = st.number_input("Ingrese el ángulo de rotación")
     st.markdown("<h2 style='text-align: center;'>Añadir un Filtro</h2>", unsafe_allow_html=True)
-    filter = st.selectbox("Escoja el filtro a seleccionar", options=["NINGUNO", "SMOOTH", "EMBOSS", "BLUR"], key="filter")
-
-    if st.button("Ajustar"):
-        # Convertir PIL Image a OpenCV Image
-        img_cv = np.array(img.convert('RGB'))
-        img_cv = img_cv[:, :, ::-1].copy()
-
-        # Redimensionar la imagen usando OpenCV
-        resized_img_cv = cv2.resize(img_cv, (width, height), interpolation=cv2.INTER_CUBIC)
-        
-        # Rotar la imagen usando OpenCV
-        center = (width // 2, height // 2)
-        matrix = cv2.getRotationMatrix2D(center, degree, 1.0)
-        rotated_img_cv = cv2.warpAffine(resized_img_cv, matrix, (width, height))
-
-        # Convertir de nuevo a PIL Image para aplicar filtros
-        edited_img_pil = Image.fromarray(rotated_img_cv[:, :, ::-1])
-
+    filter = st.selectbox("Escoja el filtro a seleccionar", options=["NINGUNO", "SMOOTH", "EMBOSS", "BLUR"])
+    
+    btn = st.button("Ajustar")
+    if btn:
+        edited = opened_img.resize((width, height))
+        edited = edited.rotate(degree)
         if filter != "NINGUNO":
             if filter == "SMOOTH":
-                edited_img_pil = edited_img_pil.filter(ImageFilter.SMOOTH)
+                edited = edited.filter(ImageFilter.SMOOTH)
             elif filter == "EMBOSS":
-                edited_img_pil = edited_img_pil.filter(ImageFilter.EMBOSS)
+                edited = edited.filter(ImageFilter.EMBOSS)
             elif filter == "BLUR":
-                edited_img_pil = edited_img_pil.filter(ImageFilter.BLUR)
-
-        st.image(edited_img_pil, caption='Imagen Editada')
+                edited = edited.filter(ImageFilter.BLUR)
+        st.image(edited)
