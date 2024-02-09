@@ -1,7 +1,7 @@
 import streamlit as st
 from PIL import Image, ImageFilter
 
-st.set_page_config(page_title="WebImg", page_icon=":snake:")
+st.set_page_config(page_title="Editor de Imagenes", page_icon=":snake:")
 
 st.markdown("<h1 style='text-align: center;'>Editor de imagen</h1>", unsafe_allow_html=True)
 st.markdown("---")
