@@ -18,7 +18,7 @@ if img_file is not None:
     degree = st.sidebar.slider("Ángulo de rotación", min_value=0, max_value=360, value=0, step=1)
     filter_option = st.sidebar.selectbox("Escoja el filtro a seleccionar", options=["NINGUNO", "SMOOTH", "EMBOSS", "BLUR"])
 
-    btn = st.sidebar.button("Ajustar")
+    btn = st.sidebar.button("Editar")
     if btn:
         edited = img.resize((width, height))
         edited = edited.rotate(degree)
